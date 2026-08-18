@@ -1,0 +1,34 @@
+module(name = "lyra_android", version = "1.0.0")
+
+# Обновляем версии до актуальных, которые выбрал Bazel 9
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "rules_cc", version = "0.2.17")
+bazel_dep(name = "rules_android_ndk", version = "0.1.5")
+
+# Инициализируем и подтягиваем тулчейн NDK r29
+ndk_ext = use_extension("@rules_android_ndk//:extension.bzl", "android_ndk_repository_extension")
+use_repo(ndk_ext, "androidndk")
+
+# Регистрируем компиляторы Clang из NDK r29
+register_toolchains("@androidndk//:all")
+
+
+bazel_dep(name = "abseil-cpp", version = "20250814.1")
+bazel_dep(name = "glog", version = "0.7.1.bcr.1")
+bazel_dep(name = "protobuf", version = "33.4")
+bazel_dep(name = "rules_proto", version = "7.1.0")
+
+
+# 1. Инструменты аудио обработки Google (бывший com_google_audio_dsp)
+bazel_dep(name = "multichannel-audio-tools", version = "0.0.0", repo_name = "com_google_audio_dsp")
+
+local_path_override(
+    module_name = "multichannel-audio-tools",
+    path = "third_party/multichannel-audio-tools",
+)
+
+
+
+
+
+

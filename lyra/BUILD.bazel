@@ -1,0 +1,128 @@
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_shared_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@protobuf//bazel:cc_proto_library.bzl", "cc_proto_library")
+
+package(default_visibility = ["//visibility:public"])
+
+platform(
+    name = "android_arm64_platform",
+    constraint_values = [
+        "@platforms//cpu:arm64",
+        "@platforms//os:android",
+    ],
+)
+
+proto_library(
+    name = "lyra_config_proto",
+    srcs = ["lyra_config.proto"],
+)
+
+cc_proto_library(
+    name = "lyra_config_cc_proto",
+    deps = [":lyra_config_proto"],
+)
+
+
+# Виртуальный монтаж заголовков Lyra
+cc_library(
+    name = "lyra_headers",
+    hdrs = [
+        "buffered_filter_interface.h",
+        "buffered_resampler.h",
+        "comfort_noise_generator.h",
+        "dsp_utils.h",
+        "feature_estimator_interface.h",
+        "feature_extractor_interface.h",
+        "generative_model_interface.h",
+        "log_mel_spectrogram_extractor_impl.h",
+        "lyra_components.h",
+        "lyra_config.h",
+        "lyra_decoder.h",
+        "lyra_decoder_interface.h",
+        "lyra_embedded_models.h",
+        "lyra_gan_model.h",
+        "noise_estimator.h",
+        "noise_estimator_interface.h",
+        "packet.h",
+        "packet_interface.h",
+        "resampler.h",
+        "resampler_interface.h",
+        "residual_vector_quantizer.h",
+        "soundstream_encoder.h",
+        "tflite_model_wrapper.h",
+        "vector_quantizer_interface.h",
+        "zero_feature_estimator.h",
+    ],
+    include_prefix = "lyra",
+    strip_include_prefix = "",
+    visibility = ["//visibility:public"],
+    deps = [":lyra_config_cc_proto"], # <-- Добавьте сюда
+)
+
+# Реализация декодера
+cc_library(
+    name = "lyra_decoder_lib",
+    srcs = [
+        "buffered_resampler.cc",
+        "comfort_noise_generator.cc",
+        "dsp_utils.cc",
+        "log_mel_spectrogram_extractor_impl.cc",
+        "lyra_components.cc",
+        "lyra_config.cc",
+        "lyra_decoder.cc",
+        "lyra_gan_model.cc",
+        "noise_estimator.cc",
+        "resampler.cc",
+        "residual_vector_quantizer.cc",
+        "soundstream_encoder.cc",
+        "tflite_model_wrapper.cc",
+    ],
+    copts = ["-std=c++17"],
+    deps = [
+        ":lyra_headers",
+        ":lyra_config_cc_proto", # <-- Добавьте сюда
+        "@protobuf//:protobuf", # <-- ДОБАВЬТЕ ЭТУ СТРОКУ СЮДА
+        "@abseil-cpp//absl/base",
+        "@abseil-cpp//absl/memory",
+        "@abseil-cpp//absl/random",
+        "@abseil-cpp//absl/status",
+        "@abseil-cpp//absl/status:statusor",
+        "@abseil-cpp//absl/strings",
+        "@abseil-cpp//absl/types:span",
+        "@glog//:glog",
+        "//third_party/tensorflow_lite:delegates/xnnpack/xnnpack_delegate",
+        "//third_party/tensorflow_lite:tensorflow_lite",
+        "@com_google_audio_dsp//audio/dsp:number_util",
+        "@com_google_audio_dsp//audio/dsp:resampler_q",
+        "@com_google_audio_dsp//audio/dsp:signal_vector_util",
+        "@com_google_audio_dsp//audio/dsp/mfcc:mel_filterbank",
+        "@com_google_audio_dsp//audio/dsp/spectrogram:inverse_spectrogram",
+        "@com_google_audio_dsp//audio/dsp/spectrogram:spectrogram",
+    ],
+)
+
+# JNI прослойка
+cc_library(
+    name = "lyra_jni_lib",
+    srcs = ["jni_lyra_decoder.cc"],
+    hdrs = ["_models.h"],
+    copts = [
+        "-O3",
+        "-std=c++17",
+        "-fvectorize",
+    ],
+    linkopts = [
+        "-llog",
+    ],
+    deps = [
+        ":lyra_decoder_lib",
+        ":lyra_headers",
+    ],
+)
+
+# Итоговая shared-библиотека
+cc_shared_library(
+    name = "lyra_decoder_jni",
+    deps = [":lyra_jni_lib"],
+)
+

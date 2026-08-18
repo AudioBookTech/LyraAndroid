@@ -1,0 +1,37 @@
+# === Bazel Build Outputs ===
+/bazel-bin
+/bazel-out
+/bazel-testlogs
+/bazel-LyraAndroid
+bazel-*
+
+# === Android Specifics ===
+# Local developer SDK configuration (MUST NOT BE COMMITTED)
+local.properties
+.gradle/
+build/
+
+# Android Studio / IntelliJ IDEA artifacts
+.idea/
+*.iml
+*.iws
+
+# === Native C/C++ Compilation Caches ===
+.cxx/
+.externalNativeBuild/
+ndkBuild/
+obj/
+
+# Your explicit rule for the root-compiled shared library
+/liblyra_decoder.so
+*.so
+*.aar
+*.apk
+*.bundle
+
+# === Linux / IDE System Files ===
+*~
+*.swp
+.DS_Store
+.vscode/
+

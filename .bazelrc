@@ -1,0 +1,18 @@
+# Говорим Bazel принудительно активировать современную платформу при вызове этого конфига
+build:android_arm64 --platforms=//lyra:android_arm64_platform
+
+# Общие флаги оптимизации для компилятора Clang из NDK r29 without debug symbols:
+# build --compilation_mode=opt
+# build --copt=-O3
+# build --copt=-g0
+
+# with debug symbols:
+build --compilation_mode=opt
+build --copt=-O3
+build --copt=-g
+build --strip=never
+
+build:android_arm64 --linkopt=-Lthird_party/pthread_stub
+
+build:android_arm64 --linkopt=-Wl,-z,max-page-size=16384
+
