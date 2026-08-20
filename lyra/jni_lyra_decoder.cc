@@ -37,7 +37,7 @@ Java_com_KonstantinShramko_Audiobook_LyraDecoder_decodeToBuffer(JNIEnv* env, job
     // Optimization: use an array on the stack instead of std::vector,
     // because Lyra packets are very small (typically 8, 15 or 23 bytes).
     uint8_t stack_encoded_data[128];
-    if (encoded_len > 128) return -3; // На всякий случай, если формат изменится
+    if (encoded_len > 128) return -3; // Just in case the format changes
 
     env->GetByteArrayRegion(encoded_data, 0, encoded_len, reinterpret_cast<jbyte*>(stack_encoded_data));
 
@@ -49,7 +49,7 @@ Java_com_KonstantinShramko_Audiobook_LyraDecoder_decodeToBuffer(JNIEnv* env, job
     }
 
     // 3. Decoding
-    int num_samples_per_packet = decoder->sample_rate_hz() / 50; // 20ms кадр
+    int num_samples_per_packet = decoder->sample_rate_hz() / 50; // 20ms frame
     auto decoded_samples = decoder->DecodeSamples(num_samples_per_packet);
     if (!decoded_samples.has_value()) return -5;
 
