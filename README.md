@@ -21,4 +21,6 @@ bazel build --repo_env=HERMETIC_PYTHON_VERSION=3.12 --check_direct_dependencies=
 
 The finished binary will be located at paths: "~/LyraAndroid/liblyra_decoder.so"
 
+On the [LyraAndroid wiki](https://github.com/AudioBookTech/LyraAndroid/wiki), you can learn about the **Lyra Codec** utility and the **Lyra Player** app.
+
 EOF
